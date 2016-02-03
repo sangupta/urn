@@ -1,6 +1,10 @@
 urn
 ===
 
+[![Build Status](https://travis-ci.org/sangupta/urn.svg?branch=master)](https://travis-ci.org/sangupta/urn)
+[![Coverage Status](https://coveralls.io/repos/github/sangupta/urn/badge.svg?branch=master)](https://coveralls.io/github/sangupta/urn?branch=master)
+[![Maven Version](https://maven-badges.herokuapp.com/maven-central/com.sangupta/urn/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.sangupta/urn)
+
 **urn** is a Java library that helps integrate with different object stores via a simple API, allowing you to change
 the provider at runtime without changing the code.
 
