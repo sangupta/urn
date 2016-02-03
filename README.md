@@ -1,4 +1,5 @@
-### urn
+urn
+===
 
 **urn** is a Java library that helps integrate with different object stores via a simple API, allowing you to change
 the provider at runtime without changing the code.
@@ -16,7 +17,8 @@ Ones in the pipeline:
 * MongoDB GridFS
 * SeaWeedFS
 
-Feature Roadmap:
+Feature Roadmap
+---------------
 
 - Ability for time-based eviction
 - Metadata storage with object like MIME type
