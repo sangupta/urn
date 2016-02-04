@@ -20,6 +20,9 @@ Ones in the pipeline:
 * Amazon S3
 * MongoDB GridFS
 * SeaWeedFS
+* LevelDB
+* RocksDB
+* SQlite
 
 Feature Roadmap
 ---------------
