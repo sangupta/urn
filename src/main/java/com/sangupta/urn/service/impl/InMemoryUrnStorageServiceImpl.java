@@ -48,4 +48,23 @@ public class InMemoryUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 		return true;
 	}
 
+	@Override
+	protected boolean has(String objectKey) {
+		if(!this.storage.containsKey(objectKey)) {
+			return false;
+		}
+		
+		UrnObject object = this.get(objectKey);
+		if(object == null) {
+			return false;
+		}
+		
+		if(object.isExpired()) {
+			this.remove(objectKey);
+			return false;
+		}
+		
+		return true;
+	}
+	
 }

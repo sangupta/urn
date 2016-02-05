@@ -76,13 +76,13 @@ public class FlatFileUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 		// store the metadata in a different file
 		UrnObjectMeta meta = urnObject.cloneObjectMeta();
 		if(meta != null) {
-			file = getFile(urnObject.key + ".urn.meta");
+			file = getFile(getMetaKey(urnObject.key));
 			
 			try {
 				String json = GsonUtils.getGson().toJson(meta);
 				FileUtils.writeByteArrayToFile(file, json.getBytes(StringUtils.CHARSET_UTF8));
-				return file.getAbsolutePath();
 			} catch (IOException e) {
+				// eat up
 			}
 		}
 		
@@ -97,13 +97,7 @@ public class FlatFileUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 			byte[] data = FileUtils.readFileToByteArray(file);
 			
 			// read metadata
-			file = getFile(objectKey + ".urn.meta");
-			byte[] bytes = FileUtils.readFileToByteArray(file);
-			
-			String json = new String(bytes, StringUtils.CHARSET_UTF8);
-			
-			// copy metadata
-			UrnObject urnObject = GsonUtils.getGson().fromJson(json, UrnObject.class);
+			UrnObject urnObject = getMetaObject(objectKey);
 			
 			urnObject.key = objectKey;
 			urnObject.bytes = data;
@@ -117,10 +111,15 @@ public class FlatFileUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 	@Override
 	protected boolean remove(String objectKey) {
 		File file = getFile(objectKey);
-		if(!file.exists()) {
+		try {
+			FileUtils.forceDelete(file);
+			
 			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
+
+		file = getFile(getMetaKey(objectKey));
 		try {
 			FileUtils.forceDelete(file);
 			
@@ -130,6 +129,29 @@ public class FlatFileUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 		}
 		
 		return false;
+	}
+	
+	@Override
+	protected boolean has(String objectKey) {
+		File data = getFile(objectKey);
+
+		UrnObject urnObject = null;
+		try {
+			urnObject = getMetaObject(objectKey);
+		} catch (IOException e) {
+			return false;
+		}
+		
+		if(urnObject == null) {
+			return false;
+		}
+		
+		if(urnObject.isExpired()) {
+			this.remove(objectKey);
+			return false;
+		}
+		
+		return asFileExists(data);
 	}
 	
 	/**
@@ -155,6 +177,42 @@ public class FlatFileUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl
 		final String secondLevelFolder = objectKey.substring(len - 2);
 		
 		return firstLevelFolder + File.separator + secondLevelFolder;
+	}
+
+	/**
+	 * Check if the given {@link File} instance represents an existing file on
+	 * disk.
+	 * 
+	 * @param file
+	 *            the {@link File} instance to be tested
+	 * 
+	 * @return <code>true</code> if file represents a valid existing file on
+	 *         disk, <code>false</code> otherwise
+	 */
+	private boolean asFileExists(File file) {
+		if(file == null) {
+			return false;
+		}
+		
+		if(!file.exists()) {
+			return false;
+		}
+		
+		if(!file.isFile()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private UrnObject getMetaObject(String objectKey) throws IOException {
+		File file = getFile(getMetaKey(objectKey));
+		byte[] bytes = FileUtils.readFileToByteArray(file);
+		
+		String json = new String(bytes, StringUtils.CHARSET_UTF8);
+		
+		// copy metadata
+		return GsonUtils.getGson().fromJson(json, UrnObject.class);
 	}
 
 }

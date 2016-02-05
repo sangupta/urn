@@ -66,4 +66,21 @@ public class MongoCollectionUrnStorageServiceImpl extends AbstractUrnStorageServ
 		return true;
 	}
 
+	@Override
+	protected boolean has(String objectKey) {
+		Query query = new Query(Criteria.where("key").is(objectKey));
+		query.fields().include("expiry");
+		UrnObject urnObject = this.mongoTemplate.findById(objectKey, UrnObject.class, this.collectionName);
+		if(urnObject == null) {
+			return false;
+		}
+		
+		if(urnObject.isExpired()) {
+			this.remove(objectKey);
+			return false;
+		}
+		
+		return true;
+	}
+	
 }

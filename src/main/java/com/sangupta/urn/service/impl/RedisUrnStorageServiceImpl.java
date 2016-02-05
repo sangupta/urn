@@ -72,7 +72,20 @@ public class RedisUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl {
 		return true;
 	}
 
-	private String getMetaKey(String objectKey) {
-		return objectKey + ".urn.meta";
+	@Override
+	protected boolean has(String objectKey) {
+		// TODO: fix via redis.hasKey()
+		UrnObject urnObject = this.get(objectKey);
+		if(urnObject == null) {
+			return false;
+		}
+		
+		if(urnObject.isExpired()) {
+			this.remove(objectKey);
+			return false;
+		}
+		
+		return true;
 	}
+
 }

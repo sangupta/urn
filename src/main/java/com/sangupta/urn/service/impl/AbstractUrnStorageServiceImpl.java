@@ -86,11 +86,6 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 			return null;
 		}
 		
-		if(object.isExpired()) {
-			this.remove(objectKey);
-			return null;
-		}
-		
 		return object.bytes;
 	}
 
@@ -104,22 +99,34 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 	}
 	
 	@Override
-	public boolean existsObject(String objectName) {
-		// TODO: fix this to improve performance
-		byte[] bytes = this.getObjectBytes(objectName);
-		if(bytes == null) {
-			return false;
-		}
-		
-		return true;
+	public boolean existsObject(String objectKey) {
+		return this.has(objectKey);
 	}
 	
+	// helper methods for child implementations
+	
+	/**
+	 * Returns a unique meta-data key for a given object key. This is useful
+	 * when implementations need to store meta-data as a different object in
+	 * their data-store.
+	 * 
+	 * @param objectKey
+	 *            the object key to convert meta key into
+	 * 
+	 * @return the converted meta key
+	 */
+	protected String getMetaKey(String objectKey) {
+		return objectKey + ".urn.meta";
+	}
+
 	// protected methods that implementations need to implement
 
 	protected abstract UrnObject get(String objectKey);
 
 	protected abstract String save(UrnObject urnObject);
 
-	protected abstract boolean remove(String objectName);
+	protected abstract boolean remove(String objectKey);
+	
+	protected abstract boolean has(String objectKey);
 
 }
