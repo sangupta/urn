@@ -15,7 +15,7 @@
 	<packaging>jar</packaging>
 
 	<name>urn</name>
-	<description>Object store library</description>
+	<description>Object storage library</description>
 	<url>http://sangupta.com/projects/urn</url>
 	<inceptionYear>2016</inceptionYear>
 	
