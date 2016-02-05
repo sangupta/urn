@@ -19,28 +19,74 @@
  * 
  */
  
-
 package com.sangupta.urn.model;
 
 import org.springframework.data.annotation.Id;
 
-public class UrnObject {
+/**
+ * An object stored in the urn along with its metadata.
+ * 
+ * @author sangupta
+ *
+ */
+public class UrnObject extends UrnObjectMeta {
 
+	/**
+	 * The unique key for this object inside the urn
+	 */
 	@Id
-	public String name;
+	public String key;
 	
+	/**
+	 * The byte-array contents for this object
+	 */
 	public byte[] bytes;
 	
-	public long millis;
-	
+	/**
+	 * Default constructor
+	 */
 	public UrnObject() {
-		
+		super();
 	}
 
-	public UrnObject(String name, byte[] bytes) {
-		this.name = name;
+	/**
+	 * Convenience constructor
+	 * 
+	 * @param key
+	 * @param bytes
+	 */
+	public UrnObject(String key, byte[] bytes) {
+		this();
+		this.key = key;
 		this.bytes = bytes;
-		this.millis = System.currentTimeMillis();
 	}
-	
+
+	/**
+	 * Return a new {@link UrnObjectMeta} instance that has the same properties
+	 * as this instance, but both are de-linked.
+	 *  
+	 * @return
+	 */
+	public UrnObjectMeta cloneObjectMeta() {
+		UrnObjectMeta meta = new UrnObjectMeta();
+		
+		meta.name = this.name;
+		meta.expiry = this.expiry;
+		meta.mime = this.mime;
+		meta.stored = this.stored;
+		
+		return meta;
+	}
+
+	public boolean isExpired() {
+		if(this.expiry <= 0) {
+			return false;
+		}
+		
+		if(System.currentTimeMillis() > this.expiry) {
+			return true;
+		}
+		
+		return false;
+	}
 }

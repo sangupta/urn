@@ -49,24 +49,19 @@ public class MongoCollectionUrnStorageServiceImpl extends AbstractUrnStorageServ
 	}
 	
 	@Override
-	protected String save(String objectName, byte[] bytes) {
-		this.mongoTemplate.save(new UrnObject(objectName, bytes), this.collectionName);
-		return objectName;
+	protected String save(UrnObject urnObject) {
+		this.mongoTemplate.save(urnObject, this.collectionName);
+		return urnObject.key;
+	}
+	
+	@Override
+	protected UrnObject get(String objectKey) {
+		return this.mongoTemplate.findById(objectKey, UrnObject.class, this.collectionName);
 	}
 
 	@Override
-	protected byte[] get(String objectName) {
-		UrnObject object = this.mongoTemplate.findById(objectName, UrnObject.class, this.collectionName);
-		if(object == null) {
-			return null;
-		}
-		
-		return object.bytes;
-	}
-
-	@Override
-	protected boolean remove(String objectName) {
-		Query query = new Query(Criteria.where("name").is(objectName));
+	protected boolean remove(String objectKey) {
+		Query query = new Query(Criteria.where("key").is(objectKey));
 		this.mongoTemplate.findAndRemove(query, UrnObject.class, this.collectionName);
 		return true;
 	}

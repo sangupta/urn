@@ -40,7 +40,9 @@ public class TestRedisUrnStorageServiceImpl {
 	public void testService() {
 		MockJedis jedis = new MockJedis("mock-jedis");
 		RedisTemplate<String, byte[]> template = new DryRunRedisTemplate<String, byte[]>(jedis);
-		template.setKeySerializer(new StringRedisSerializer());
+		
+		StringRedisSerializer defaultSerializer = new StringRedisSerializer();
+		template.setKeySerializer(defaultSerializer);
 		template.setValueSerializer(new RedisSerializer<byte[]>() {
 
 			@Override
@@ -54,7 +56,11 @@ public class TestRedisUrnStorageServiceImpl {
 			}
 		});
 		
-		UrnStorageService service = new RedisUrnStorageServiceImpl(template);
+		RedisTemplate<String, String> metaTemplate = new DryRunRedisTemplate<String, String>(jedis);
+		metaTemplate.setKeySerializer(defaultSerializer);
+		metaTemplate.setValueSerializer(defaultSerializer);
+		
+		UrnStorageService service = new RedisUrnStorageServiceImpl(template, metaTemplate);
 		
 		byte[] data1 = ByteArrayUtils.getRandomBytes(1024);
 		byte[] data2 = ByteArrayUtils.getRandomBytes(1024);
@@ -64,10 +70,10 @@ public class TestRedisUrnStorageServiceImpl {
 		Assert.assertFalse(service.existsObject(keyName));
 		Assert.assertNotNull(service.saveObject(keyName, data1));
 		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data1, service.getObject(keyName));
+		Assert.assertArrayEquals(data1, service.getObjectBytes(keyName));
 		Assert.assertNotNull(service.saveObject(keyName, data2));
 		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data2, service.getObject(keyName));
+		Assert.assertArrayEquals(data2, service.getObjectBytes(keyName));
 		Assert.assertTrue(service.removeObject(keyName));
 		Assert.assertFalse(service.existsObject(keyName));
 	}

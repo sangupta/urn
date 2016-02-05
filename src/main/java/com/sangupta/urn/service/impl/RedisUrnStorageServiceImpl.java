@@ -19,35 +19,60 @@
  * 
  */
  
-
 package com.sangupta.urn.service.impl;
 
 import org.springframework.data.redis.core.RedisTemplate;
+
+import com.sangupta.jerry.util.GsonUtils;
+import com.sangupta.urn.model.UrnObject;
+import com.sangupta.urn.model.UrnObjectMeta;
 
 public class RedisUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl {
 	
 	private final RedisTemplate<String, byte[]> redisTemplate;
 	
-	public RedisUrnStorageServiceImpl(RedisTemplate<String, byte[]> redisTemplate) {
+	private final RedisTemplate<String, String> metaTemplate;
+	
+	public RedisUrnStorageServiceImpl(RedisTemplate<String, byte[]> redisTemplate, RedisTemplate<String, String> metaTemplate) {
 		this.redisTemplate = redisTemplate;
+		this.metaTemplate = metaTemplate;
+	}
+	
+	@Override
+	protected UrnObject get(String objectKey) {
+		String json = this.metaTemplate.opsForValue().get(getMetaKey(objectKey));
+		if(json == null) {
+			return null;
+		}
+		
+		UrnObject urnObject = GsonUtils.getGson().fromJson(json, UrnObject.class);
+		
+		byte[] bytes = this.redisTemplate.opsForValue().get(objectKey);
+		urnObject.key = objectKey;
+		urnObject.bytes = bytes;
+		
+		return urnObject;
 	}
 
 	@Override
-	protected byte[] get(String objectName) {
-		return this.redisTemplate.opsForValue().get(objectName);
+	protected String save(UrnObject urnObject) {
+		this.redisTemplate.opsForValue().set(urnObject.key, urnObject.bytes);
+		
+		UrnObjectMeta meta = urnObject.cloneObjectMeta();
+		this.metaTemplate.opsForValue().set(getMetaKey(urnObject.key), GsonUtils.getGson().toJson(meta));
+		
+		return urnObject.key;
 	}
-
+	
 	@Override
-	protected String save(String objectName, byte[] bytes) {
-		this.redisTemplate.opsForValue().set(objectName, bytes);
-		return objectName;
-	}
-
-	@Override
-	protected boolean remove(String objectName) {
-		this.redisTemplate.delete(objectName);
+	protected boolean remove(String objectKey) {
+		// first remove the meta so that no call to read can succeed
+		this.metaTemplate.delete(getMetaKey(objectKey));
+		this.redisTemplate.delete(objectKey);
 		return true;
 	}
 
-
+	private String getMetaKey(String objectKey) {
+		return objectKey + ".urn.meta";
+	}
 }

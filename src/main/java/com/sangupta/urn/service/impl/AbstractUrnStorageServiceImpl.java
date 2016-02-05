@@ -19,10 +19,10 @@
  * 
  */
  
-
 package com.sangupta.urn.service.impl;
 
 import com.sangupta.jerry.util.AssertUtils;
+import com.sangupta.urn.model.UrnObject;
 import com.sangupta.urn.service.UrnStorageService;
 
 public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService {
@@ -37,16 +37,56 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 			throw new IllegalArgumentException("Data bytes to store cannot be null/empty");
 		}
 
-		return this.save(objectName, bytes);
+		return this.save(new UrnObject(objectName, bytes));
 	}
-
+	
 	@Override
-	public byte[] getObject(String objectName) {
-		if (AssertUtils.isEmpty(objectName)) {
+	public String saveObject(String objectKey, String name, byte[] bytes, String mimeType, long expiry) {
+		UrnObject urnObject = new UrnObject(objectKey, bytes);
+		
+		urnObject.name = name;
+		urnObject.mime = mimeType;
+		urnObject.expiry = expiry;
+		
+		return this.save(urnObject);
+	}
+	
+	@Override
+	public UrnObject getObject(String objectKey) {
+		if (AssertUtils.isEmpty(objectKey)) {
 			throw new IllegalArgumentException("Object name cannot be null/empty");
 		}
 
-		return this.get(objectName);
+		UrnObject object = this.get(objectKey);
+
+		if(object == null) {
+			return null;
+		}
+		
+		// additional expiry check in case implementations are nasty
+		if(object.isExpired()) {
+			// delete this object
+			this.remove(objectKey);
+			return null;
+		}
+		
+		return object;
+	}
+
+	@Override
+	public byte[] getObjectBytes(String objectKey) {
+		UrnObject object = this.getObject(objectKey);
+		
+		if(object == null) {
+			return null;
+		}
+		
+		if(object.isExpired()) {
+			this.remove(objectKey);
+			return null;
+		}
+		
+		return object.bytes;
 	}
 
 	@Override
@@ -61,7 +101,7 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 	@Override
 	public boolean existsObject(String objectName) {
 		// TODO: fix this to improve performance
-		byte[] bytes = this.getObject(objectName);
+		byte[] bytes = this.getObjectBytes(objectName);
 		if(bytes == null) {
 			return false;
 		}
@@ -71,9 +111,9 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 	
 	// protected methods that implementations need to implement
 
-	protected abstract byte[] get(String objectName);
+	protected abstract UrnObject get(String objectKey);
 
-	protected abstract String save(String objectName, byte[] bytes);
+	protected abstract String save(UrnObject urnObject);
 
 	protected abstract boolean remove(String objectName);
 

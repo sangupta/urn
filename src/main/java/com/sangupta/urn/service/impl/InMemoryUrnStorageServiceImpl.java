@@ -25,24 +25,26 @@ package com.sangupta.urn.service.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sangupta.urn.model.UrnObject;
+
 public class InMemoryUrnStorageServiceImpl extends AbstractUrnStorageServiceImpl {
 	
-	private final Map<String, byte[]> storage = new HashMap<String, byte[]>(); 
-
+	private final Map<String, UrnObject> storage = new HashMap<String, UrnObject>();
+	
 	@Override
-	protected byte[] get(String objectName) {
-		return this.storage.get(objectName);
+	protected UrnObject get(String objectKey) {
+		return this.storage.get(objectKey);
+	}
+	
+	@Override
+	protected String save(UrnObject urnObject) {
+		this.storage.put(urnObject.key, urnObject);
+		return urnObject.key;
 	}
 
 	@Override
-	protected String save(String objectName, byte[] bytes) {
-		this.storage.put(objectName, bytes);
-		return objectName;
-	}
-
-	@Override
-	protected boolean remove(String objectName) {
-		this.storage.remove(objectName);
+	protected boolean remove(String objectKey) {
+		this.storage.remove(objectKey);
 		return true;
 	}
 

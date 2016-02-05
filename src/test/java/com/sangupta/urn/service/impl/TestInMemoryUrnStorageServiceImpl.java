@@ -42,10 +42,10 @@ public class TestInMemoryUrnStorageServiceImpl {
 		Assert.assertFalse(service.existsObject(keyName));
 		Assert.assertNotNull(service.saveObject(keyName, data1));
 		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data1, service.getObject(keyName));
+		Assert.assertArrayEquals(data1, service.getObjectBytes(keyName));
 		Assert.assertNotNull(service.saveObject(keyName, data2));
 		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data2, service.getObject(keyName));
+		Assert.assertArrayEquals(data2, service.getObjectBytes(keyName));
 		Assert.assertTrue(service.removeObject(keyName));
 		Assert.assertFalse(service.existsObject(keyName));
 	}
