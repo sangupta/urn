@@ -38,11 +38,11 @@ public class AbstractUrnStorageTests {
 		Assert.assertFalse(service.existsObject(keyName));
 		
 		// add fresh object
-		Assert.assertNotNull(service.saveObject(keyName, keyName, data1, mimeType, System.currentTimeMillis() + 10));
+		Assert.assertNotNull(service.saveObject(keyName, keyName, data1, mimeType, System.currentTimeMillis() + 100));
 		Assert.assertTrue(service.existsObject(keyName));
 		// sleep for a while
 		try {
-			Thread.sleep(50);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// eat up
 		}
