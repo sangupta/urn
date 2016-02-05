@@ -60,6 +60,42 @@ public class UrnObject extends UrnObjectMeta {
 		this.key = key;
 		this.bytes = bytes;
 	}
+	
+	@Override
+	public int hashCode() {
+		if(this.key == null) {
+			return 0;
+		}
+		
+		return this.key.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null) {
+			return false;
+		}
+		
+		if(obj == this) {
+			return true;
+		}
+		
+		if(this.key == null) {
+			return false;
+		}
+		
+		if(!(obj instanceof UrnObject)) {
+			return false;
+		}
+		
+		UrnObject other = (UrnObject) obj;
+		return this.key.equals(other.key);
+	}
+	
+	@Override
+	public String toString() {
+		return "[UrnObject: key=" + this.key + ", name=" + this.name + "]";
+	}
 
 	/**
 	 * Return a new {@link UrnObjectMeta} instance that has the same properties
