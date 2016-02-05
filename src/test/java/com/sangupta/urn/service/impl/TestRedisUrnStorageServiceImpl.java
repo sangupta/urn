@@ -22,7 +22,6 @@
 
 package com.sangupta.urn.service.impl;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -31,10 +30,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fiftyonred.mock_jedis.MockJedis;
 import com.sangupta.dryrun.redis.DryRunRedisTemplate;
-import com.sangupta.jerry.util.ByteArrayUtils;
 import com.sangupta.urn.service.UrnStorageService;
 
-public class TestRedisUrnStorageServiceImpl {
+public class TestRedisUrnStorageServiceImpl extends AbstractUrnStorageTests {
 
 	@Test
 	public void testService() {
@@ -62,20 +60,7 @@ public class TestRedisUrnStorageServiceImpl {
 		
 		UrnStorageService service = new RedisUrnStorageServiceImpl(template, metaTemplate);
 		
-		byte[] data1 = ByteArrayUtils.getRandomBytes(1024);
-		byte[] data2 = ByteArrayUtils.getRandomBytes(1024);
-		
-		String keyName = "key1";
-		
-		Assert.assertFalse(service.existsObject(keyName));
-		Assert.assertNotNull(service.saveObject(keyName, data1));
-		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data1, service.getObjectBytes(keyName));
-		Assert.assertNotNull(service.saveObject(keyName, data2));
-		Assert.assertTrue(service.existsObject(keyName));
-		Assert.assertArrayEquals(data2, service.getObjectBytes(keyName));
-		Assert.assertTrue(service.removeObject(keyName));
-		Assert.assertFalse(service.existsObject(keyName));
+		testService(service);
 	}
 
 }

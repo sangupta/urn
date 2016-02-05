@@ -42,6 +42,11 @@ public abstract class AbstractUrnStorageServiceImpl implements UrnStorageService
 	
 	@Override
 	public String saveObject(String objectKey, String name, byte[] bytes, String mimeType, long expiry) {
+		// check for expiry time
+		if(expiry > 0 && expiry < System.currentTimeMillis()) {
+			return null; // do not save
+		}
+		
 		UrnObject urnObject = new UrnObject(objectKey, bytes);
 		
 		urnObject.name = name;
