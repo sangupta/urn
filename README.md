@@ -24,11 +24,16 @@ Ones in the pipeline:
 * RocksDB
 * SQlite
 
+Features
+--------
+
+- Ability for time-based eviction of each individual asset (depends on provider)
+- Metadata storage with object like MIME type
+- Custom name that can be set, different from the unique key
+
 Feature Roadmap
 ---------------
 
-- Ability for time-based eviction
-- Metadata storage with object like MIME type
 - A simple server that can serve the raw stream using the key
 
 
