@@ -18,7 +18,7 @@
  * limitations under the License.
  * 
  */
- 
+
 package com.sangupta.urn.model;
 
 import org.springframework.data.annotation.Id;
