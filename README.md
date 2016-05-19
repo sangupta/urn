@@ -1,11 +1,10 @@
-urn
-===
+# urn
 
 [![Build Status](https://travis-ci.org/sangupta/urn.svg?branch=master)](https://travis-ci.org/sangupta/urn)
 [![Coverage Status](https://coveralls.io/repos/github/sangupta/urn/badge.svg?branch=master)](https://coveralls.io/github/sangupta/urn?branch=master)
 [![Maven Version](https://maven-badges.herokuapp.com/maven-central/com.sangupta/urn/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.sangupta/urn)
 
-**urn** is a Java library that helps integrate with different object stores via a simple API, allowing you to change
+`urn` is a Java library that helps integrate with different object stores via a simple API, allowing you to change
 the provider at runtime without changing the code.
 
 Currently available object store providers:
@@ -13,32 +12,51 @@ Currently available object store providers:
 * In-memory
 * Flat-file on disk
 * Redis
-* MongoDB
+* MongoDB - collection based
+* MongoDB - GridFS based
 
 Ones in the pipeline:
 
 * Amazon S3
-* MongoDB GridFS
 * SeaWeedFS
 * LevelDB
 * RocksDB
 * SQlite
 
-Features
---------
+## Features
 
-- Ability for time-based eviction of each individual asset (depends on provider)
-- Metadata storage with object like MIME type
-- Custom name that can be set, different from the unique key
+* Ability for time-based eviction of each individual asset (depends on provider)
+* Metadata storage with object like MIME type
+* Custom name that can be set, different from the unique key
 
-Feature Roadmap
----------------
+## Feature Roadmap
 
-- A simple server that can serve the raw stream using the key
+* A simple server that can serve the raw stream using the key
 
+## Usage
 
-Versioning
-----------
+Using `urn` is pretty straight-forward:
+
+```java
+UrnStorageService service = new RedisUrnStorageServiceImpl();
+
+String objectKey = "myObject-123";
+
+// save a new object
+service.saveObject(objectKey, getRandomBytes());
+
+// check if the object is saved or not
+service.existsObject(objectKey); // returns true
+
+// retrieve data
+service.getObjectBytes(objectKey); // returns the byte[]
+
+// delete object
+service.remove(objectKey);
+service.existsObject(objectKey); // returns false
+```
+
+## Versioning
 
 For transparency and insight into our release cycle, and for striving to maintain backward compatibility, 
 `urn` will be maintained under the Semantic Versioning guidelines as much as possible.
@@ -55,8 +73,7 @@ And constructed with the following guidelines:
 
 For more information on SemVer, please visit http://semver.org/.
 
-License
--------
+## License
 	
 ```
 urn - Object storage library
